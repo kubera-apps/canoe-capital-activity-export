@@ -1,0 +1,9 @@
+# Client id and secret
+CLIENT_ID=xxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx
+CLIENT_SECRET=XXXXXXXXXXXXXXXXXX-XXXXXXXXXXXXXX
+# Orgsnization name
+ORG_NAME=Kubera - Smith Investments
+# Consider capital call activities after this date.
+# Format: YYYY-MM-DD. 
+# Keep it empty if you want to consider all capital call activities
+DATE_AFTER=2015-01-01
