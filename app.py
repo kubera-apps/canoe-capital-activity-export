@@ -116,12 +116,18 @@ class Organizations(Auth):
             if 'fundName' in validatedData:
                 fundName = validatedData['fundName']
             
+            currency = 'USD'
+            if 'currency_code' in validatedData:
+                currency = validatedData['currency_code']
+                        
             call_activity = {
                 'clientNameOrEmail': entity,
                 'assetName': fundName,
                 'date': date,
+                'currency': currency,
                 'cashIn': cashIn,
-                'cashOut': 0
+                'cashOut': 0,
+                'note': ''
             }
             activityDate = dt.strptime(date, '%Y-%m-%d')
             if (activityDate > self.date_after):
@@ -146,12 +152,18 @@ class Organizations(Auth):
             if 'fundName' in validatedData:
                 fundName = validatedData['fundName']
             
+            currency = 'USD'
+            if 'currency_code' in validatedData:
+                currency = validatedData['currency_code']
+
             distribution_activity = {
                 'clientNameOrEmail': entity,
                 'assetName': fundName,
                 'date': date,
+                'currency': currency,
                 'cashIn': 0,
-                'cashOut': cashOut
+                'cashOut': cashOut,
+                'note': ''
             }
             
             activityDate = dt.strptime(date, '%Y-%m-%d')
