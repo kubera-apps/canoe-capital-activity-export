@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 import aiohttp
 import asyncio
 from datetime import datetime as dt
+import parsedatetime as pdt
+from time import mktime
 import sys
 
 load_dotenv()
@@ -96,14 +98,14 @@ class Organizations(Auth):
     async def get_all(self):
         responses = await self.get_all_org_document_data()
         result_dfs = []
+        cal = pdt.Calendar()
 
         for response in responses['call']:
             validatedData = response['allocations'][0]['validated_data']
             
-            date = ''
+            dateStr = ''
             if 'dueDate' in validatedData:
-                date = validatedData['dueDate']
-
+                dateStr = validatedData['dueDate']
             cashIn = 0
             if 'capitalCall' in validatedData:
                 cashIn = validatedData['capitalCall']
@@ -119,27 +121,28 @@ class Organizations(Auth):
             currency = 'USD'
             if 'currency_code' in validatedData:
                 currency = validatedData['currency_code']
-                        
+            
+            dateStu = cal.parse(dateStr)[0]
+            date = dt.fromtimestamp(mktime(dateStu))
+            activityDateStr = date.strftime('%Y-%m-%d')            
             call_activity = {
                 'clientNameOrEmail': entity,
                 'assetName': fundName,
-                'date': date,
+                'date': activityDateStr,
                 'currency': currency,
                 'cashIn': cashIn,
                 'cashOut': 0,
                 'note': ''
             }
-            activityDate = dt.strptime(date, '%Y-%m-%d')
-            if (activityDate > self.date_after):
+            if (date > self.date_after):
                 result_dfs.append(call_activity)
 
         for response in responses['distribution']:
             validatedData = response['allocations'][0]['validated_data']
             
-            date = ''
+            dateStr = ''
             if 'distributionDate' in validatedData:
-                date = validatedData['distributionDate']
-
+                dateStr = validatedData['distributionDate']
             cashOut = 0
             if 'distribution' in validatedData:
                 cashOut = validatedData['distribution']
@@ -156,18 +159,20 @@ class Organizations(Auth):
             if 'currency_code' in validatedData:
                 currency = validatedData['currency_code']
 
+            dateStu = cal.parse(dateStr)[0]
+            date = dt.fromtimestamp(mktime(dateStu))
+            activityDateStr = date.strftime('%Y-%m-%d')
             distribution_activity = {
                 'clientNameOrEmail': entity,
                 'assetName': fundName,
-                'date': date,
+                'date': activityDateStr,
                 'currency': currency,
                 'cashIn': 0,
                 'cashOut': cashOut,
                 'note': ''
             }
             
-            activityDate = dt.strptime(date, '%Y-%m-%d')
-            if (activityDate > self.date_after):
+            if (date > self.date_after):
                 result_dfs.append(distribution_activity)
         
         result_dfs.sort(key=lambda x: x['date'], reverse=True)
